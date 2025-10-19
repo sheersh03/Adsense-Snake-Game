@@ -1,0 +1,545 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    padding-bottom: 120px; /* Space for sticky ad */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Prevent page scrolling when game is active - NO OVERLAY that blocks ads */
+body.game-active {
+    overflow: hidden;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    min-height: 700px; /* Fixed minimum height - prevents ANY vertical collapse */
+    position: relative;
+    isolation: isolate; /* Create new stacking context */
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    flex-shrink: 0; /* Container never shrinks */
+}
+
+.game-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.score-container {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#game-board {
+    border: 2px solid #333;
+    background-color: #e8e8e8;
+    display: block;
+    width: 400px;
+    height: 400px;
+}
+
+.game-controls {
+    width: 100%;
+    height: 52px; /* Fixed height - never changes */
+    position: relative; /* Container for absolute positioned buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Never shrink */
+}
+
+button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    min-width: 80px; /* Consistent button width */
+    min-height: 36px; /* Consistent button height */
+    max-height: 36px; /* Prevent height expansion */
+    font-weight: 500;
+    position: relative;
+    outline: none;
+    user-select: none; /* Prevent text selection */
+    -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+    touch-action: manipulation; /* Improve touch responsiveness */
+    will-change: transform; /* Optimize animations */
+    flex-shrink: 0; /* Prevent button shrinking */
+}
+
+button:hover:not(.hidden) {
+    background-color: #45a049;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+button:active:not(.hidden) {
+    box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+}
+
+button:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#restart-btn {
+    background-color: #f44336;
+}
+
+#restart-btn:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+#restart-btn:active {
+    box-shadow: 0 1px 3px rgba(244, 67, 54, 0.3);
+}
+
+#restart-btn:focus {
+    outline-color: #f44336;
+}
+
+#pause-btn {
+    background-color: #2196F3;
+}
+
+#pause-btn:hover {
+    background-color: #1976D2;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+#pause-btn:active {
+    box-shadow: 0 1px 3px rgba(33, 150, 243, 0.3);
+}
+
+#pause-btn:focus {
+    outline-color: #2196F3;
+}
+
+.mobile-controls {
+    display: none;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    min-height: 120px; /* Fixed height to prevent shifts */
+}
+
+.mobile-controls.hidden {
+    display: none;
+    min-height: 0;
+}
+
+.mobile-controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.mobile-controls-row-single {
+    margin-bottom: 12px;
+}
+
+.mobile-control-btn {
+    flex: 1;
+    min-width: 70px;
+    max-width: 100px;
+    padding: 12px 0;
+    font-size: 1rem;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* All game control buttons are absolutely positioned to prevent ANY layout shift */
+.game-controls button {
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Show only non-hidden buttons */
+.game-controls button:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Position buttons next to each other when multiple are visible */
+#start-btn {
+    transform: translate(-50%, -50%);
+}
+
+#restart-btn:not(.hidden) {
+    transform: translate(calc(-50% - 95px), -50%);
+}
+
+#pause-btn:not(.hidden) {
+    transform: translate(calc(-50% + 95px), -50%);
+}
+
+/* When only restart and pause are visible (during game) */
+#start-btn.hidden ~ #restart-btn:not(.hidden) {
+    transform: translate(calc(-50% - 50px), -50%);
+}
+
+#start-btn.hidden ~ #pause-btn:not(.hidden) {
+    transform: translate(calc(-50% + 50px), -50%);
+}
+
+#game-over.hidden {
+    display: none !important;
+}
+
+#game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.game-over-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-over-content h2 {
+    color: #f44336;
+    margin-bottom: 15px;
+}
+
+#play-again-btn {
+    margin-top: 20px;
+    min-width: 120px;
+}
+
+#start-btn {
+    min-width: 100px;
+}
+
+/* Keyboard Hints */
+.keyboard-hints {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    margin-top: 10px;
+    height: 40px; /* Fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.keyboard-hints p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Ad Container Styles - Always visible for revenue */
+.ad-container {
+    width: 100%;
+    max-width: 970px;
+    margin: 20px auto;
+    text-align: center;
+    min-height: 90px;
+    position: relative;
+    z-index: 1; /* Ensure ads are always visible */
+}
+
+.ad-top {
+    margin-bottom: 20px;
+}
+
+/* Keep ads visible during gameplay */
+body.game-active .ad-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Sticky Footer Ad - Must stay visible for revenue */
+.ad-sticky {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border-top: 2px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Always above game content */
+    max-height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ensure sticky ad stays visible during gameplay */
+body.game-active .ad-sticky {
+    z-index: 1000; /* Keep above everything */
+}
+
+.ad-sticky.hidden {
+    display: none;
+}
+
+.ad-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    z-index: 1001;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.ad-close:hover {
+    background-color: #d32f2f;
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.4);
+}
+
+.ad-close:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 3px rgba(244, 67, 54, 0.4);
+}
+
+/* Cookie Consent Banner - Must be above everything */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 20px;
+    z-index: 2000; /* Above ads and game */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Keep cookie banner accessible during gameplay */
+body.game-active .cookie-banner {
+    z-index: 2000;
+}
+
+.cookie-banner.hidden {
+    display: none;
+}
+
+.cookie-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    text-align: center;
+}
+
+.cookie-banner-content p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.cookie-banner-content a {
+    color: #4CAF50;
+    text-decoration: underline;
+}
+
+.cookie-banner-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.cookie-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    min-width: 100px;
+    min-height: 40px;
+    font-weight: 500;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.cookie-accept {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cookie-accept:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.cookie-accept:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+}
+
+.cookie-decline {
+    background-color: #757575;
+    color: white;
+}
+
+.cookie-decline:hover {
+    background-color: #616161;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(117, 117, 117, 0.3);
+}
+
+.cookie-decline:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(117, 117, 117, 0.3);
+}
+
+/* Footer */
+.footer {
+    margin-top: 30px;
+    padding: 15px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        width: 95%;
+        padding: 10px;
+    }
+
+    #game-board {
+        width: 100%;
+        height: auto;
+    }
+
+    .game-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+
+    button {
+        padding: 12px 18px;
+        font-size: 1.05rem;
+    }
+
+    /* Hide keyboard hints on mobile */
+    .keyboard-hints {
+        display: none;
+    }
+
+    .mobile-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .mobile-controls-row-single .mobile-control-btn {
+        max-width: 140px;
+    }
+
+    .mobile-control-btn {
+        font-size: 1.1rem;
+        padding: 16px 0;
+    }
+
+    .cookie-banner-content {
+        flex-direction: column;
+    }
+
+    .cookie-banner-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .cookie-btn {
+        width: 100%;
+    }
+}

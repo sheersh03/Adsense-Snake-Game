@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google AdSense Auto Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ADSENSE_PUB_ID}}"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner hidden">
+        <div class="cookie-banner-content">
+            <p>We use cookies and ads to provide you with a better experience. By continuing to use this site, you accept our use of cookies and personalized ads. <a href="privacy.html" target="_blank">Privacy Policy</a></p>
+            <div class="cookie-banner-buttons">
+                <button id="cookie-accept" class="cookie-btn cookie-accept">Accept</button>
+                <button id="cookie-decline" class="cookie-btn cookie-decline">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Banner Ad -->
+    <div class="ad-container ad-top">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{{ADSENSE_PUB_ID}}"
+             data-ad-slot="{{AD_SLOT_TOP}}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Snake Game</h1>
+            <div class="score-container">
+                <span>Score: </span>
+                <span id="score">0</span>
+            </div>
+        </div>
+        <canvas id="game-board"></canvas>
+        <div class="game-controls">
+            <button id="start-btn">Start Game</button>
+            <button id="restart-btn" class="hidden">Restart</button>
+            <button id="pause-btn" class="hidden">Pause</button>
+        </div>
+        <div class="keyboard-hints">
+            <p>Use Arrow Keys or WASD to control</p>
+        </div>
+        <div class="mobile-controls hidden" id="mobile-controls">
+            <div class="mobile-controls-row mobile-controls-row-single">
+                <button class="mobile-control-btn" data-direction="up">Up</button>
+            </div>
+            <div class="mobile-controls-row">
+                <button class="mobile-control-btn" data-direction="left">Left</button>
+                <button class="mobile-control-btn" data-direction="down">Down</button>
+                <button class="mobile-control-btn" data-direction="right">Right</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over" class="hidden">
+        <div class="game-over-content">
+            <h2>Game Over!</h2>
+            <p>Your score: <span id="final-score">0</span></p>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Sticky Footer Ad -->
+    <div id="sticky-ad" class="ad-sticky hidden">
+        <button class="ad-close" id="close-sticky-ad" aria-label="Close ad">&times;</button>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{{ADSENSE_PUB_ID}}"
+             data-ad-slot="{{AD_SLOT_STICKY}}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+
+    <!-- Privacy Policy Link -->
+    <footer class="footer">
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
