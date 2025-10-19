@@ -38,6 +38,14 @@ const closeStickyAdBtn = document.getElementById('close-sticky-ad');
 const COOKIE_CONSENT_KEY = 'snakeGameCookieConsent';
 const STICKY_AD_CLOSED_KEY = 'snakeGameStickyAdClosed';
 
+function applyConsent(granted) {
+    if (typeof gtag !== 'function') return;
+    gtag('consent', 'update', {
+        ad_storage: granted ? 'granted' : 'denied',
+        analytics_storage: granted ? 'granted' : 'denied'
+    });
+}
+
 function setCookie(name, value, days) {
     const expires = new Date();
     expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -62,10 +70,28 @@ function checkCookieConsent() {
 
     if (!consent) {
         // No consent given yet - show banner
-        cookieBanner.classList.remove('hidden');
-    } else if (consent === 'accepted') {
+        if (cookieBanner) {
+            cookieBanner.classList.remove('hidden');
+        }
+        applyConsent(false);
+        return;
+    }
+
+    if (consent === 'accepted') {
         // Consent already given - load ads automatically
+        applyConsent(true);
         initializeAds();
+        if (cookieBanner) {
+            cookieBanner.classList.add('hidden');
+        }
+        return;
+    }
+
+    if (consent === 'declined') {
+        applyConsent(false);
+        if (cookieBanner) {
+            cookieBanner.classList.add('hidden');
+        }
     }
     // If declined, banner stays hidden but no ads load
 }
@@ -97,14 +123,20 @@ function initializeAds() {
 function handleCookieAccept() {
     // Store consent in permanent cookie (365 days) - persists across refreshes
     setCookie(COOKIE_CONSENT_KEY, 'accepted', 365);
-    cookieBanner.classList.add('hidden');
+    if (cookieBanner) {
+        cookieBanner.classList.add('hidden');
+    }
+    applyConsent(true);
     initializeAds();
 }
 
 function handleCookieDecline() {
     // Store decline in permanent cookie (365 days) - persists across refreshes
     setCookie(COOKIE_CONSENT_KEY, 'declined', 365);
-    cookieBanner.classList.add('hidden');
+    if (cookieBanner) {
+        cookieBanner.classList.add('hidden');
+    }
+    applyConsent(false);
 }
 
 function closeStickyAd() {
